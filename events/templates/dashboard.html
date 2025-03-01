@@ -1,0 +1,88 @@
+{% load static %}
+<!-- dashboard.html - Dashboard Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    {% include "nav.html" %}
+    
+    <!-- Dashboard Section -->
+    <section class="p-8">
+        <h3 class="text-2xl font-bold">Dashboard</h3>
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+                <i class="fa-solid fa-users text-indigo-600 text-3xl mr-3"></i>
+                <div>
+                    <p class="text-gray-600">Total Participants</p>
+                    <p class="text-xl font-bold">{{counts.total_participants}}</p>
+                </div>
+            </div>
+            <a href="{% url 'dashboard' %}?type=all">
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+                <i class="fa-solid fa-calendar text-indigo-600 text-3xl mr-3"></i>
+                
+                <div>
+                    <p class="text-gray-600">Total Events</p>
+                    <p class="text-xl font-bold">{{counts.total_events}}</p>
+                </div>
+            </div>
+            </a>
+            <a href="{% url 'dashboard' %}?type=upcoming">
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+                <i class="fa-solid fa-chart-line text-indigo-600 text-3xl mr-3"></i>
+                
+                    <div>
+                    <p class="text-gray-600">Upcoming Events</p>
+                    <p class="text-xl font-bold">{{counts.upcoming_events}}</p>
+                </div>
+            </div>
+        </a>
+            <a href="{% url 'dashboard' %}?type=past">
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+                <i class="fa-solid fa-clock text-indigo-600 text-3xl mr-3"></i>
+                
+                    <div>
+                    <p class="text-gray-600">Past Events</p>
+                    <p class="text-xl font-bold">{{counts.past_events}}</p>
+                </div>
+            </div>
+            </a>
+        </div>
+        
+        <!-- Events by Category -->
+        <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+            <h4 class="text-lg font-bold">Events by Category</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {% for category in categories %}
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                    <h5 class="text-md font-bold">{{category.category__name}}</h5>
+                    <p class="text-xl font-bold">{{category.event_count}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Today's Events -->
+        <div class="bg-white p-4 rounded-lg shadow-md mt-6">
+            <h4 class="text-lg font-bold">Today's Events</h4>
+            {% for event in event_today %}
+                <ul class="mt-2">
+                    <li class="py-2 border-b"><i class="fa-solid fa-clock text-indigo-600 mr-2"></i> {{event.name}} - {{event.time}}</li> 
+                </ul>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    {% include "footer.html" %}
+</body>
+</html>

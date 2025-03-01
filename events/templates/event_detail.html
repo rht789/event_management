@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Detail</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+  <!-- Navbar -->
+  {% include "nav.html" %}
+
+        <div class="mt-6">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="px-4 py-2 text-white font-semibold rounded-lg flex justify-between items-center
+                                {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+  <section class="p-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <!-- Event Title -->
+      <h1 class="text-3xl font-bold text-"scripts": {
+        "build:tailwind": "npx tailwindcss -i ./static/css/tailwind.css -o ./static/css/output.css --minify",
+        "watch:tailwind": "npx tailwindcss -i ./static/css/tailwind.css -o ./static/css/output.css --watch"
+      }-700 mb-2">
+        {{ event.name }}
+      </h1>
+
+      <!-- Event Description -->
+      <p class="text-gray-600 mb-4">
+        {{ event.description }}
+      </p>
+
+      <div class="flex flex-wrap items-center text-gray-600 gap-6 mb-4">
+        <!-- Event Date -->
+        <div class="flex items-center">
+          <i class="fas fa-calendar-alt mr-2 text-indigo-600"></i>
+          {{ event.date }}
+        </div>
+
+        <!-- Event Location -->
+        <div class="flex items-center">
+          <i class="fas fa-map-marker-alt mr-2 text-indigo-600"></i>
+          {{ event.location }}
+        </div>
+
+        <!-- Event Time (if you have a time field) -->
+        {% if event.time %}
+          <div class="flex items-center">
+            <i class="fas fa-clock mr-2 text-indigo-600"></i>
+            {{ event.time }}
+          </div>
+        {% endif %}
+
+        <!-- Participant Count (Using annotated field) -->
+        <div class="flex items-center">
+          <i class="fas fa-users mr-2 text-indigo-600"></i>
+          {{ event.participant_num }} Participants
+        </div>
+      </div>
+
+      <!-- Category Badge -->
+      <span class="inline-block bg-gray-200 text-indigo-600 px-3 py-1 rounded-md text-sm">
+        {{ event.category.name }}
+      </span>
+
+      <!-- Participants List -->
+      <h3 class="text-lg font-bold mt-6 mb-2 text-indigo-700">Participants</h3>
+      <div class="flex flex-wrap gap-4">
+        {% for person in event.participant.all %}
+          <div class="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-1">
+            <i class="fas fa-user text-indigo-600"></i>
+            {{ person.name }}
+          </div>
+        {% empty %}
+          <p>No participants yet.</p>
+        {% endfor %}
+      </div>
+
+      <!-- Action Buttons (Edit/Delete) -->
+      <div class="mt-6 flex gap-3">
+        <!-- Edit Button -->
+        <a
+          href="{% url 'update_event' event.id %}"
+          class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-md"
+        >
+          <i class="fas fa-edit mr-2"></i>
+          Edit
+        </a>
+
+        <!-- Delete Button -->
+        <form action="{% url 'delete_event' event.id %}" method="POST"> 
+          {% csrf_token %}
+          <button
+            type="submit"
+            class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-md"
+            onclick="return confirm('Are you sure you want to delete this event?');"
+          >
+            <i class="fas fa-trash-alt mr-2"></i>
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  {% include "footer.html" %}
+</body>
+</html>
