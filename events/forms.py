@@ -4,6 +4,9 @@ from events.models import Event
 class StyledFormMixin:
     """Mixin to apply Tailwind CSS styles to form fields."""
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()   
     default_classes = "border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500"
 
     def apply_styled_widgets(self):
@@ -50,6 +53,3 @@ class EventForm(StyledFormMixin, forms.ModelForm):
             'participant': forms.CheckboxSelectMultiple()
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.apply_styled_widgets()
