@@ -5,46 +5,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In</title>
-    <link rel="stylesheet" href="{% static "css/output.css" %}">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4 max-w-md">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Sign In to Authentication System</h2>
-        <div>
-            {% if error %}
-                <p class="bg-red-600 text-white py-2 px-4 rounded mb-4">{{ error }}</p>
-            {% endif %}
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+<div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-lg">
+    <h2 class="text-2xl font-bold text-indigo-900 text-center mb-6">Sign In</h2>
+
+    {% if form.non_field_errors %}
+        <div class="bg-red-500 text-white py-2 px-4 rounded mb-4">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
         </div>
-        <form method="POST" action="" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
-                <input type="text" name="username" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" name="password" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <button type="submit" class="bg-indigo-500 text-white py-2 px-3 rounded-md hover:bg-indigo-600">Sign In</button>
-        </form>
-    </div>
-</body>
-</html>
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
-</head>
-<body>
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
-        <label for="username">Username</label>
-        <input type="text" name="username" placeholder="Enter your username">
-        <label for="password">Password</label>
-        <input type="password" name="password" placeholder="Enter your password">
-        <button type="submit">Sign In</button>
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block font-medium text-gray-700">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <ul class="text-red-600 text-sm">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300">
+            Sign In
+        </button>
+
+        <p class="text-sm text-center mt-4">Don't have an account yet?
+            <a href="{% url 'sign-up' %}" class="text-indigo-600 hover:text-indigo-700">Sign Up</a>
+        </p>
     </form>
+</div>
+
 </body>
-</html> {% endcomment %}
+</html>

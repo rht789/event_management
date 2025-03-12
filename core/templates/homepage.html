@@ -1,17 +1,197 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signin</title>
+    <title>EventHub - Your Event Management Solution</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
 </head>
-<body>
-    <p>Welcome Home</p>
-    {% if user.is_authenticated %}
-        <p>Welcome {{user}}</p>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    {% include "nav.html" %}
+    <!-- Hero Section -->
+    <section class="bg-indigo-700 text-white py-20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Manage Your Events with Ease</h1>
+                    <p class="text-xl mb-6">Create, organize, and promote your events all in one place.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-white text-indigo-600 px-6 py-3 rounded-md font-medium hover:bg-indigo-100 transition duration-300">Get Started</a>
+                        <a href="#" class="border border-white px-6 py-3 rounded-md font-medium hover:bg-indigo-600 transition duration-300">Learn More</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="/api/placeholder/600/400" alt="Event Management" class="rounded-lg shadow-xl">
+                </div>
+            </div>
+        </div>
+    </section>
 
-    {% else %}
-        <p>Annonymus</p>
-    {% endif %}
+    <!-- Features Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Why Choose EventHub?</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-indigo-600 text-3xl mb-4">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Easy Event Creation</h3>
+                    <p class="text-gray-600">Create and customize your events in minutes with our intuitive interface.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-indigo-600 text-3xl mb-4">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Seamless Ticketing</h3>
+                    <p class="text-gray-600">Sell tickets online and manage registrations with our integrated system.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-indigo-600 text-3xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Detailed Analytics</h3>
+                    <p class="text-gray-600">Track attendance, sales, and engagement with comprehensive reporting tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Upcoming Events</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="/api/placeholder/400/200" alt="Tech Conference" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-indigo-600 font-semibold">Apr 15, 2025</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">Technology</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Annual Tech Summit</h3>
+                        <p class="text-gray-600 mb-4">Join industry leaders for a day of innovation and networking.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i> San Francisco, CA</span>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="/api/placeholder/400/200" alt="Music Festival" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-indigo-600 font-semibold">May 22, 2025</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">Music</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Summer Music Festival</h3>
+                        <p class="text-gray-600 mb-4">Experience three days of amazing performances and fun activities.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i> Austin, TX</span>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="/api/placeholder/400/200" alt="Food Festival" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-indigo-600 font-semibold">Jun 10, 2025</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">Food & Drink</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">International Food Festival</h3>
+                        <p class="text-gray-600 mb-4">Taste cuisine from around the world with top chefs and restaurants.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i> Chicago, IL</span>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <a href="#" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-md font-medium hover:bg-indigo-700 transition duration-300">View All Events</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-indigo-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Ready to Create Your Next Event?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Join thousands of event organizers who trust EventHub to bring their vision to life.</p>
+            <a href="#" class="bg-white text-indigo-600 px-8 py-4 rounded-md font-medium text-lg hover:bg-indigo-100 transition duration-300">Start Free Trial</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-calendar-check text-2xl mr-2 text-indigo-400"></i>
+                        <span class="text-xl font-bold">EventHub</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">The complete platform for event management, ticketing, and promotion.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Create Event</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">123 Event Street, San Francisco, CA 94107</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">(123) 456-7890</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">info@eventhub.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 EventHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
