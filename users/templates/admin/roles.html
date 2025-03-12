@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex min-h-screen bg-gray-100">
+    
+    {% include 'admin/sidebar.html' %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    <main class="flex-1 p-10 overflow-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">Role Management</h1>
+            <a href="{% url 'create-group' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                + Create New Role
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-2xl font-bold mb-2">System Roles</h2>
+            <p class="text-gray-500 mb-4">Manage roles and their associated permissions.</p>
+
+            <div class="mb-6">
+                <input type="text" placeholder="Search roles..." class="border px-3 py-2 rounded w-full">
+            </div>
+
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b">
+                        <th class="py-2">Role</th>
+                        <th class="py-2">Description</th>
+                        <th class="py-2">Users</th>
+                        <th class="py-2">Permissions</th>
+                        <th class="py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in roles %}
+                    <tr class="border-b">
+                        <td class="py-3">
+                            <div class="font-semibold">{{ role.name }}</div>
+                        </td>
+                        <td class="py-3 text-gray-600">{{ role.description|default:"No description provided." }}</td>
+                        <td class="py-3">
+                            <span class="bg-indigo-500 text-white px-2 py-1 rounded-full text-xs">
+                                {{ role.users_count }} users
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs">
+                                {{ role.permissions_count }} permissions
+                            </span>
+                        </td>
+                        <td class="py-3 space-x-2">
+                            <div class="flex items-center gap-4">
+                                <a href="{% url 'edit-role' role.id %}" class="px-3 py-1 bg-white text-indigo-500 border border-indigo-500 rounded hover:bg-indigo-100 transition duration-300">
+                                Edit
+                            </a>
+                            <form action='{% url "delete-role" role.id %}' method='POST'>
+                                {% csrf_token %}
+                                <button
+                                class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-700"
+                                type="submit"
+                                >
+                                Delete
+                                </button>
+                            </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-4 text-center">No roles found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}

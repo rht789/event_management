@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Your Event Management Solution</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    {% include "nav.html" %}
+    {% block content %}
+    
+    
+    {% endblock content %}
+        <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-calendar-check text-2xl mr-2 text-indigo-400"></i>
+                        <span class="text-xl font-bold">EventHub</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">The complete platform for event management, ticketing, and promotion.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Create Event</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">123 Event Street, San Francisco, CA 94107</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">(123) 456-7890</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-indigo-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">info@eventhub.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 EventHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+
+</body>
+</html>

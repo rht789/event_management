@@ -1,0 +1,29 @@
+<aside class="w-64 bg-white border-r p-6 relative">
+    <div class="flex items-center mb-10 text-2xl">
+        <i class="fas fa-calendar-alt text-indigo-600 mr-2"></i>
+        <span class="font-bold">Admin Dashboard tools</span>
+    </div>
+
+    <nav class="space-y-3">
+        <a href="{% url 'admin-dashboard' %}" class="flex items-center px-3 py-2 rounded-md bg-indigo-50 text-indigo-700">
+            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+        </a>
+        <a href="{% url 'user-management' %}" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-gray-600">
+            <i class="fas fa-users mr-2"></i> Users
+        </a>
+        <a href="{% url 'roles' %}" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-gray-600">
+            <i class="fas fa-user-cog mr-2"></i> Roles
+        </a>
+
+    </nav>
+</aside>
+
+<script>
+    document.getElementById('rolesToggle').addEventListener('click', function(){
+        const rolesMenu = document.getElementById('rolesMenu');
+        const chevron = document.getElementById('rolesChevron');
+        
+        rolesMenu.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+    });
+</script>

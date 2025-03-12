@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from events.forms import EventForm
-from events.models import Event, Category, Participant
+from events.models import Event, Category
 from django.db.models import Q,Count
 from django.utils.dateparse import parse_date
 from django.utils import timezone
