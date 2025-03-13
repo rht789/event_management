@@ -74,26 +74,27 @@ WSGI_APPLICATION = "event_management.wsgi.application"
 # Database documentation https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 """Render Database"""
-# DATABASES = {
-#     'default': dj_database_url.config(   
-#         default='postgresql://event_management_db_zl4g_user:DpKUUlrJKvjK72t9zEPPcu6IenAZuIJh@dpg-curkt2rv2p9s73ak5vgg-a.oregon-postgres.render.com/event_management_db_zl4g',       
-#         conn_max_age=600    
-#         )}
+DATABASES = {
+    'default': dj_database_url.config(   
+        default='postgresql://event_management_db_m8et_user:8TExOVCDvcSdEKjcMK7mSfqu8UbmIKHv@dpg-cv9iet5umphs73egicv0-a.oregon-postgres.render.com/event_management_db_m8et',       
+        conn_max_age=600    
+        )}
+
 """Device Database"""
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 FRONTEND_URL=config('FRONTEND_URL')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default=''),
-        'USER': config('DB_USER', default=''),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', cast=int)
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME', default=''),
+#         'USER': config('DB_USER', default=''),
+#         'PASSWORD': config('DB_PASSWORD', default=''),
+#         'HOST': config('DB_HOST', default='localhost'),
+#         'PORT': config('DB_PORT', cast=int)
+#     }
+# }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
