@@ -1,16 +1,9 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Event Detail</title>
-  <link rel="stylesheet" href="{% static 'css/output.css' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-100">
-  {% include "nav.html" %}
+{% extends "base.html" %}
 
+{% block content %}
+
+<div class="bg-gray-100">
+  
   <div class="mt-6">
     {% if messages %}
       {% for message in messages %}
@@ -25,7 +18,7 @@
   <section class="p-8">
     <div class="bg-white rounded-lg shadow-md p-6">
       <h1 class="text-3xl font-bold mb-2">{{ event.name }}</h1>
-      <p class="text-gray-600 mb-4">{{ event.description }}</p>
+      <p class="text-gray-600 mb-4">{{ event.description|default:"No description available" }}</p>
 
       <div class="flex flex-wrap items-center text-gray-600 gap-6 mb-4">
         <div class="flex items-center">
@@ -54,10 +47,10 @@
 
       <h3 class="text-lg font-bold mt-6 mb-2 text-indigo-700">Participants</h3>
       <div class="flex flex-wrap gap-4">
-        {% for person in event.participant.all %}
+        {% for person in event.rsvp_events.all %}
           <div class="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-1">
             <i class="fas fa-user text-indigo-600"></i>
-            {{ person.username }} <!-- Changed from name to username -->
+            {{ person.username }}
           </div>
         {% empty %}
           <p>No participants yet.</p>
@@ -75,7 +68,7 @@
             <i class="fas fa-edit mr-2"></i>
             Edit
           </a>
-          <form action="{% url 'delete_event' event.id %}" method="POST"> 
+          <form action="{% url 'delete_event' event.id %}" method="POST">
             {% csrf_token %}
             <button
               type="submit"
@@ -86,24 +79,21 @@
               Delete
             </button>
           </form>
-        {% elif request.user in event.participant.all %}
-          <!-- Participant Button -->
-          <button
-            class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-md"
-          >
-            <i class="fas fa-ticket-alt mr-2"></i>
-            Booked
-          </button>
-        {% elif request.user.is_authenticated %}
-          <!-- Non-participant authenticated user -->
-          <form action="{% url 'book_event' event.id %}" method="POST">
+        {% elif request.user.is_authenticated and request.user.groups.filter(name='Participant').exists %}
+          <!-- Participant RSVP Button -->
+          <form action="{% url 'rsvp_event' event.id %}" method="POST">
             {% csrf_token %}
             <button
               type="submit"
               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md"
+              {% if request.user in event.rsvp_events.all %}disabled{% endif %}
             >
               <i class="fas fa-ticket-alt mr-2"></i>
-              Book Now
+              {% if request.user in event.rsvp_events.all %}
+                RSVP'd
+              {% else %}
+                RSVP Now
+              {% endif %}
             </button>
           </form>
         {% endif %}
@@ -111,6 +101,6 @@
     </div>
   </section>
 
-  {% include "footer.html" %}
-</body>
-</html>
+</div>
+
+{% endblock content %}

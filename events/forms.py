@@ -46,10 +46,10 @@ class EventForm(StyledFormMixin, forms.ModelForm):
     
     class Meta:
         model = Event
-        exclude = ['category']
+        fields = '__all__'
+        exclude = ['participant']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),
-            'participant': forms.CheckboxSelectMultiple()
         }
 

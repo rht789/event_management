@@ -14,14 +14,14 @@ class Event(models.Model):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default='1')
-    participant = models.ManyToManyField(User, related_name='events_participated')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    participant = models.ManyToManyField(User, related_name='rsvp_events', blank=True)
     organizer = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
         related_name='events_organized',
         default=1
-        )
+    )
     
     def __str__(self):
         return self.name

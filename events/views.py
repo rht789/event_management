@@ -7,6 +7,8 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from users.views import is_admin
+from django.core.mail import send_mail
+from django.conf import settings
 
 def is_organizer(user):
     return user.groups.filter(name='Organizer').exists()
@@ -24,7 +26,10 @@ def home(request):
     ).order_by('?')[:6]
     context = {
         "upcoming_events": upcoming_events,
-        "user": request.user
+        "user": request.user,
+        "is_participant": request.user.groups.filter(name='Participant').exists() if request.user.is_authenticated else False,
+        "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+        "is_admin": request.user.groups.filter(name='Admin').exists() if request.user.is_authenticated else False,
     }
     return render(request, "homepage.html", context)
 
@@ -36,9 +41,9 @@ def create_event(request):
         event_form = EventForm(request.POST)
         if event_form.is_valid():
             event = event_form.save(commit=False)
-            event.organizer = request.user
+            event.organizer = request.user  # Set organizer dynamically
             event.save()
-            event_form.save_m2m()  # Save ManyToMany relationships
+            event_form.save_m2m()  # Save ManyToMany fields (though participant is excluded)
             messages.success(request, "Event created Successfully")
             return redirect('create_event')
     context = {"event_form": event_form}
@@ -149,13 +154,54 @@ def delete_event(request, id):
 
 @login_required
 @user_passes_test(is_participant, login_url='no-permission')
-def book_event(request, id):
+def rsvp_event(request, id):
     event = get_object_or_404(Event, id=id)
     if request.method == 'POST':
         if request.user not in event.participant.all():
             event.participant.add(request.user)
-            messages.success(request, "Successfully booked the event")
+            messages.success(request, f"You have successfully RSVP'd to {event.name}!")
+            
+            # Send confirmation email
+            subject = f"RSVP Confirmation for {event.name}"
+            message = f"""
+            Hello {request.user.first_name},
+
+            Thank you for RSVPing to {event.name}!
+            Event Details:
+            - Date: {event.date}
+            - Location: {event.location}
+            - Category: {event.category.name}
+
+            We look forward to seeing you there!
+
+            Best regards,
+            The EventHub Team
+            """
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=False,
+            )
         else:
-            messages.info(request, "You are already booked for this event")
+            messages.info(request, f"You have already RSVP'd to {event.name}.")
         return redirect('event_detail', id=id)
     return redirect('event_detail', id=id)
+
+@login_required
+@user_passes_test(is_participant, login_url='no-permission')
+def participant_dashboard(request):
+    user = request.user
+    rsvped_events = (
+        Event.objects
+        .filter(rsvp_events=user)
+        .select_related('category')
+        .annotate(participant_num=Count("participant"))
+        .order_by('date')
+    )
+    context = {
+        "rsvped_events": rsvped_events,
+        "user": user
+    }
+    return render(request, "participant_dashboard.html", context)

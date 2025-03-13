@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container mx-auto p-8">
+        <h2 class="text-3xl font-bold text-indigo-700 mb-6">My RSVP'd Events</h2>
+        
+        {% if messages %}
+            <div class="container mx-auto mt-6">
+                {% for message in messages %}
+                    <div class="px-4 py-2 text-white font-semibold rounded-lg flex justify-between items-center
+                                {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% else %} bg-blue-500 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if rsvped_events %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {% for event in rsvped_events %}
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h4 class="font-bold text-indigo-700">{{ event.name }}</h4>
+                        <p class="">
+                            <i class="fas fa-calendar-alt text-indigo-600"></i> {{ event.date }}
+                        </p>
+                        <p class="">
+                            <i class="fas fa-map-marker-alt text-indigo-600"></i> {{ event.location }}
+                        </p>
+                        <p class="text-gray-500 text-sm mb-3">
+                            <i class="fa-solid fa-users mr-1 text-indigo-600"></i>
+                            {{ event.participant_num }}
+                        </p>
+                        <span class="text-indigo-500 text-sm bg-gray-200 px-2 py-1 rounded-md">
+                            {{ event.category.name }}
+                        </span>
+                        <br>
+                        <a
+                            href="{% url 'event_detail' event.id %}"
+                            class="inline-block mt-2 bg-indigo-600 text-white px-3 py-2 text-sm rounded-md hover:bg-indigo-700 transition duration-300"
+                        >
+                            View Details
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-600">You haven't RSVP'd to any events yet.</p>
+            <a href="{% url 'view_events' %}" class="text-indigo-600 hover:underline">Browse Events</a>
+        {% endif %}
+    </div>
+{% endblock content %}

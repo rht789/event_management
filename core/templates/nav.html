@@ -3,7 +3,7 @@
     <a href="{% url 'home' %}" class="text-lg font-bold text-indigo-600">EventHub</a>
     <div class="flex items-center space-x-6">
         <a href="{% url 'home' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Home</a>
-        <a href="{% url 'events' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Events</a>
+        <a href="{% url 'view_events' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Events</a>
         <a href="{% url 'dashboard' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Dashboard</a>
         <a href="{% url 'create_event' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Create Event</a>
             <form method="post" action="{% url 'sign-out' %}">
