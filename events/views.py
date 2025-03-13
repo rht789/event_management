@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from events.forms import EventForm, CategoryForm
 from events.models import Event, Category
@@ -71,19 +71,15 @@ def create_event(request):
 
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
-def organizer_dashboard(request):  # Renamed from 'dashboard'
+def organizer_dashboard(request):
     type = request.GET.get('type', 'all')
     base_query = Event.objects.filter(organizer=request.user).select_related('category').prefetch_related('participant')
-    
-    # Aggregated counts for stats
     counts = base_query.aggregate(
         total_participants=Count('participant', distinct=True),
         total_events=Count('id', distinct=True),
         upcoming_events=Count('id', filter=Q(date__gt=timezone.now()), distinct=True),
         past_events=Count('id', filter=Q(date__lt=timezone.now()), distinct=True)
     )
-
-    # Fetch filtered events with participant counts
     if type == 'upcoming':
         events = base_query.filter(date__gt=timezone.now())
     elif type == 'past':
@@ -91,16 +87,13 @@ def organizer_dashboard(request):  # Renamed from 'dashboard'
     else:
         events = base_query
     events = events.annotate(participant_count=Count('participant')).order_by('date')
-
-    # Fetch all categories with event counts (use 'event' instead of 'events' as per the previous fix)
     categories = Category.objects.annotate(event_count=Count('event', filter=Q(event__organizer=request.user)))
-
     context = {
         "counts": counts,
         "events": events,
         "categories": categories,
         "user": request.user,
-        "current_type": type,  # To highlight the active tab
+        "current_type": type,
     }
     return render(request, "dashboard.html", context)
 
@@ -114,7 +107,6 @@ def view_events(request):
         .select_related('category')
         .annotate(participant_num=Count("participant"))
     )
-    
     search = request.GET.get('search', '')
     if search:
         events = events.filter(
@@ -143,13 +135,18 @@ def view_events(request):
     return render(request, "events.html", context)
 
 def event_detail(request, id):
-    event = get_object_or_404(
-        Event.objects
-        .prefetch_related('participant')
-        .select_related('category')
-        .annotate(participant_num=Count("participant")),
-        id=id
-    )
+    try:
+        event = (
+            Event.objects
+            .prefetch_related('participant')
+            .select_related('category')
+            .annotate(participant_num=Count("participant"))
+            .get(id=id)
+        )
+    except Event.DoesNotExist:
+        messages.error(request, "Event not found")
+        return redirect('view_events')
+    
     context = {
         'event': event,
         'user': request.user,
@@ -162,7 +159,12 @@ def event_detail(request, id):
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def update_event(request, id):
-    event = get_object_or_404(Event, id=id)
+    try:
+        event = Event.objects.get(id=id)
+    except Event.DoesNotExist:
+        messages.error(request, "Event not found")
+        return redirect('organizer_dashboard')
+        
     if request.user != event.organizer:
         return redirect('no-permission')
     
@@ -172,7 +174,7 @@ def update_event(request, id):
         if event_form.is_valid():
             event_form.save()
             messages.success(request, "Event Updated Successfully")
-            return redirect('event_detail', id)
+            return redirect('event_detail', id=id)
     context = {
         "event_form": event_form,
         "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
@@ -182,7 +184,12 @@ def update_event(request, id):
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def delete_event(request, id):
-    event = get_object_or_404(Event, id=id)
+    try:
+        event = Event.objects.get(id=id)
+    except Event.DoesNotExist:
+        messages.error(request, "Event not found")
+        return redirect('organizer_dashboard')
+        
     if request.user != event.organizer:
         return redirect('no-permission')
     
@@ -195,13 +202,16 @@ def delete_event(request, id):
 @login_required
 @user_passes_test(is_participant, login_url='no-permission')
 def rsvp_event(request, id):
-    event = get_object_or_404(Event, id=id)
+    try:
+        event = Event.objects.get(id=id)
+    except Event.DoesNotExist:
+        messages.error(request, "Event not found")
+        return redirect('view_events')
+        
     if request.method == 'POST':
         if request.user not in event.participant.all():
             event.participant.add(request.user)
             messages.success(request, f"You have successfully RSVP'd to {event.name}!")
-            
-            # Send confirmation email
             subject = f"RSVP Confirmation for {event.name}"
             message = f"""
             Hello {request.user.first_name},
@@ -252,7 +262,12 @@ def participant_dashboard(request):
 @login_required
 @user_passes_test(is_participant, login_url='no-permission')
 def cancel_rsvp(request, id):
-    event = get_object_or_404(Event, id=id)
+    try:
+        event = Event.objects.get(id=id)
+    except Event.DoesNotExist:
+        messages.error(request, "Event not found")
+        return redirect('participant_dashboard')
+        
     if request.method == 'POST':
         if request.user in event.participant.all():
             event.participant.remove(request.user)
@@ -270,7 +285,7 @@ def create_category(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Category created successfully.")
-            return redirect('organizer_dashboard')  # Updated redirect
+            return redirect('organizer_dashboard')
     else:
         form = CategoryForm()
     context = {
@@ -282,13 +297,18 @@ def create_category(request):
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def edit_category(request, id):
-    category = get_object_or_404(Category, id=id)
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        messages.error(request, "Category not found")
+        return redirect('organizer_dashboard')
+        
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
             form.save()
             messages.success(request, "Category updated successfully.")
-            return redirect('organizer_dashboard')  # Updated redirect
+            return redirect('organizer_dashboard')
     else:
         form = CategoryForm(instance=category)
     context = {
@@ -300,12 +320,17 @@ def edit_category(request, id):
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def delete_category(request, id):
-    category = get_object_or_404(Category, id=id)
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        messages.error(request, "Category not found")
+        return redirect('organizer_dashboard')
+        
     if Event.objects.filter(category=category).exists():
         messages.error(request, "Cannot delete category because it is associated with events.")
-        return redirect('organizer_dashboard')  # Updated redirect
+        return redirect('organizer_dashboard')
     if request.method == 'POST':
         category.delete()
         messages.success(request, "Category deleted successfully.")
-        return redirect('organizer_dashboard')  # Updated redirect
-    return redirect('organizer_dashboard')  # Updated redirect
+        return redirect('organizer_dashboard')
+    return redirect('organizer_dashboard')
