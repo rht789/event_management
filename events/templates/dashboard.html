@@ -143,9 +143,7 @@
                             <h5 class="text-md font-semibold text-gray-800">{{ event.name }}</h5>
                             <p class="text-gray-500 text-sm">{{ event.date|date:"M d, Y" }}</p>
                             <div class="flex items-center mt-1">
-                                {% for i in "x"|rjust:event.participant_count %}
                                     <i class="fas fa-user text-blue-500 text-sm mr-1"></i>
-                                {% endfor %}
                                 <span class="text-gray-500 text-sm">{{ event.participant_count }} participants</span>
                             </div>
                         </div>

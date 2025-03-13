@@ -50,7 +50,7 @@ def home(request):
 def create_event(request):
     event_form = EventForm()
     if request.method == 'POST':
-        event_form = EventForm(request.POST)
+        event_form = EventForm(request.POST, request.FILES)
         if event_form.is_valid():
             try:
                 event = event_form.save(commit=False)
