@@ -47,7 +47,7 @@
 
       <h3 class="text-lg font-bold mt-6 mb-2 text-indigo-700">Participants</h3>
       <div class="flex flex-wrap gap-4">
-        {% for person in event.rsvp_events.all %}
+        {% for person in event.participant.all %}
           <div class="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-1">
             <i class="fas fa-user text-indigo-600"></i>
             {{ person.username }}
@@ -57,9 +57,11 @@
         {% endfor %}
       </div>
 
+      
+
       <!-- Action Buttons -->
       <div class="mt-6 flex gap-3">
-        {% if request.user == event.organizer %}
+        {% if user == event.organizer %}
           <!-- Organizer Buttons -->
           <a
             href="{% url 'update_event' event.id %}"
@@ -79,17 +81,17 @@
               Delete
             </button>
           </form>
-        {% elif request.user.is_authenticated and request.user.groups.filter(name='Participant').exists %}
+        {% elif user.is_authenticated and is_participant %}
           <!-- Participant RSVP Button -->
           <form action="{% url 'rsvp_event' event.id %}" method="POST">
             {% csrf_token %}
             <button
               type="submit"
               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md"
-              {% if request.user in event.rsvp_events.all %}disabled{% endif %}
+              {% if user in event.participant.all %}disabled{% endif %}
             >
               <i class="fas fa-ticket-alt mr-2"></i>
-              {% if request.user in event.rsvp_events.all %}
+              {% if user in event.participant.all %}
                 RSVP'd
               {% else %}
                 RSVP Now

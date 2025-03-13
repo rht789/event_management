@@ -2,65 +2,95 @@
 <title>{% block title %}Create Event{% endblock title %}</title>
 {% block content %}
 <section class="p-8 max-w-3xl mx-auto">
-        <h3 class="text-2xl font-bold">Create New Event</h3>
+    <h3 class="text-2xl font-bold">Create New Event</h3>
 
-        <!-- Success Message -->
-        <div>
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="px-4 py-2 text-white font-semibold rounded-lg flex justify-between items-center
-                                {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
+    <!-- Success/Error Messages -->
+    <div class="mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="px-4 py-2 text-white font-semibold rounded-lg flex justify-between items-center
+                            {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% else %} bg-blue-500 {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md mt-4">
-            <form method="POST" class="space-y-4">
-                {% csrf_token %}
+    <!-- Form Errors -->
+    <div class="mt-4">
+        {% if event_form.errors %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <ul class="mt-2">
+                    {% for field, errors in event_form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 
+    <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block font-semibold text-indigo-500">Event Name:</label>
+                {{ event_form.name }}
+                {% if event_form.name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ event_form.name.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block font-semibold text-indigo-500">Description:</label>
+                {{ event_form.description }}
+                {% if event_form.description.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ event_form.description.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-semibold text-indigo-500">Event Name:</label>
-                    {{ event_form.name }}
+                    <label class="block font-semibold text-indigo-500">Date:</label>
+                    {{ event_form.date }}
+                    {% if event_form.date.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ event_form.date.errors }}</p>
+                    {% endif %}
                 </div>
-
                 <div>
-                    <label class="block font-semibold text-indigo-500">Description:</label>
-                    {{ event_form.description }}
+                    <label class="block font-semibold text-indigo-500">Time:</label>
+                    {{ event_form.time }}
+                    {% if event_form.time.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ event_form.time.errors }}</p>
+                    {% endif %}
                 </div>
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-indigo-500">Date:</label>
-                        {{ event_form.date }}
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-indigo-500">Time:</label>
-                        {{ event_form.time }}
-                    </div>
-                </div>
+            <div>
+                <label class="block font-semibold text-indigo-500">Location:</label>
+                {{ event_form.location }}
+                {% if event_form.location.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ event_form.location.errors }}</p>
+                {% endif %}
+            </div>
 
-                <div>
-                    <label class="block font-semibold text-indigo-500">Location:</label>
-                    {{ event_form.location }}
-                </div>
+            <div>
+                <label class="block font-semibold text-indigo-500">Category:</label>
+                {{ event_form.category }}
+                {% if event_form.category.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ event_form.category.errors }}</p>
+                {% endif %}
+            </div>
 
-                <div>
-                    <label class="block font-semibold text-indigo-500">Participants:</label>
-                    <div class="flex flex-wrap space-y-2">
-                        {{ event_form.participant }}
-                    </div>
-                </div>
-
-                <div class="text-center mt-4">
-                    <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700">
-                        Submit
-                    </button>
-                </div>
-            </form>
-        </div>
-    </section>
+            <div class="text-center mt-4">
+                <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock content %}
-    
-

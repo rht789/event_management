@@ -82,6 +82,8 @@ WSGI_APPLICATION = "event_management.wsgi.application"
 """Device Database"""
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+FRONTEND_URL=config('FRONTEND_URL')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

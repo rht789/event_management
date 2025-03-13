@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class Category(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField()
+    color = models.CharField(max_length=7, default='#000000')
     
     def __str__(self):
         return self.name
@@ -19,8 +20,7 @@ class Event(models.Model):
     organizer = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
-        related_name='events_organized',
-        default=1
+        related_name='events_organized'
     )
     
     def __str__(self):

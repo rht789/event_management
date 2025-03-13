@@ -13,19 +13,22 @@ from django.contrib.auth.decorators import user_passes_test, login_required, per
 def is_admin(user):
     return user.groups.filter(name="Admin").exists()
 
-def signup(request):
-    if request.method == 'GET':
-        form = CustomRegisterForm()
-        return render(request, 'register.html', {'form': form})
+def sign_up(request):
+    form = CustomRegisterForm()
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Account created successfully! Welcome!")
-            return redirect('home')
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data.get('password1'))
+            user.is_active = False
+            user.save()
+            messages.success(
+                request, 'A Confirmation mail sent. Please check your email')
+            return redirect('sign-in')
+
         else:
-            messages.error(request, "There was an error with your registration. Please correct the form.")
-        return render(request, 'register.html', {'form': form})
+            print("Form is not valid")
+    return render(request, 'registration/register.html', {"form": form})
 
 def sign_in(request):
     form = LoginForm()

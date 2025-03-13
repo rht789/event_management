@@ -1,88 +1,170 @@
-{% load static %}
-<!-- dashboard.html - Dashboard Page -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{% static "css/output.css" %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-100">
-    <!-- Navbar -->
-    {% include "nav.html" %}
-    
-    <!-- Dashboard Section -->
-    <section class="p-8">
-        <h3 class="text-2xl font-bold">Dashboard</h3>
-        
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
-                <i class="fa-solid fa-users text-indigo-600 text-3xl mr-3"></i>
-                <div>
-                    <p class="text-gray-600">Total Participants</p>
-                    <p class="text-xl font-bold">{{counts.total_participants}}</p>
-                </div>
-            </div>
-            <a href="{% url 'dashboard' %}?type=all">
-            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
-                <i class="fa-solid fa-calendar text-indigo-600 text-3xl mr-3"></i>
-                
-                <div>
-                    <p class="text-gray-600">Total Events</p>
-                    <p class="text-xl font-bold">{{counts.total_events}}</p>
-                </div>
-            </div>
-            </a>
-            <a href="{% url 'dashboard' %}?type=upcoming">
-            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
-                <i class="fa-solid fa-chart-line text-indigo-600 text-3xl mr-3"></i>
-                
-                    <div>
-                    <p class="text-gray-600">Upcoming Events</p>
-                    <p class="text-xl font-bold">{{counts.upcoming_events}}</p>
-                </div>
-            </div>
+{% extends "base.html" %}
+{% block content %}
+<!-- Dashboard Section -->
+<section class="p-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">Organizer Dashboard</h3>
+        <a href="{% url 'create_event' %}" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition duration-300">
+            Create New Event
         </a>
-            <a href="{% url 'dashboard' %}?type=past">
-            <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
-                <i class="fa-solid fa-clock text-indigo-600 text-3xl mr-3"></i>
-                
-                    <div>
-                    <p class="text-gray-600">Past Events</p>
-                    <p class="text-xl font-bold">{{counts.past_events}}</p>
-                </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Events -->
+        <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+            <div class="bg-blue-100 items-center p-3 rounded-full flex-shrink-0 mr-4">
+                <i class="fas fa-calendar-alt text-blue-500 text-xl"></i>
             </div>
+            <div>
+                <p class="text-gray-500 text-sm">Total Events</p>
+                <p class="text-2xl font-bold text-gray-800">{{ counts.total_events }}</p>
+            </div>
+        </div>
+        <!-- Total Participants -->
+        <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+            <div class="bg-blue-100 p-3 rounded-full flex-shrink-0 mr-4">
+                <i class="fas fa-users text-blue-500 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Total Participants</p>
+                <p class="text-2xl font-bold text-gray-800">{{ counts.total_participants }}</p>
+            </div>
+        </div>
+        <!-- Categories -->
+        <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+            <div class="bg-blue-100 p-3 rounded-full flex-shrink-0 mr-4">
+                <i class="fas fa-tags text-blue-500 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Categories</p>
+                <p class="text-2xl font-bold text-gray-800">{{ categories.count }}</p>
+            </div>
+        </div>
+        <!-- Upcoming Events -->
+        <div class="bg-white p-4 rounded-lg shadow-md flex items-center">
+            <div class="bg-blue-100 p-3 rounded-full flex-shrink-0 mr-4">
+                <i class="fas fa-clock text-blue-500 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Upcoming Events</p>
+                <p class="text-2xl font-bold text-gray-800">{{ counts.upcoming_events }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Categories Section -->
+    <div class="bg-white rounded-lg shadow-md mb-8">
+        <div class="p-4 flex justify-between items-center">
+            <h4 class="text-lg font-semibold text-gray-800">Event Categories</h4>
+            <a href="{% url 'create_category' %}" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition duration-300">
+                Add Category
             </a>
         </div>
-        
-        <!-- Events by Category -->
-        <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-            <h4 class="text-lg font-bold">Events by Category</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                {% for category in categories %}
-                    <div class="bg-gray-100 p-4 rounded-lg text-center">
-                    <h5 class="text-md font-bold">{{category.category__name}}</h5>
-                    <p class="text-xl font-bold">{{category.event_count}}</p>
+        <div class="divide-y divide-gray-200">
+            {% for category in categories %}
+                <div class="p-4 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="p-2 mr-4">
+                            <i class="fas fa-tag text-xl" style="color: {{ category.color }};"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-md font-semibold text-gray-800">{{ category.name }}</h5>
+                            <p class="text-gray-500 text-sm">{{ category.event_count }} events</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'edit_category' category.id %}" class="px-3 py-1 bg-white text-indigo-500 border border-indigo-500 rounded hover:bg-indigo-100 transition duration-300">
+                            Edit
+                        </a>
+                        <form action="{% url 'delete_category' category.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1 bg-white text-red-500 border border-red-500 rounded hover:bg-red-100 transition duration-300">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Today's Events -->
-        <div class="bg-white p-4 rounded-lg shadow-md mt-6">
-            <h4 class="text-lg font-bold">Today's Events</h4>
-            {% for event in event_today %}
-                <ul class="mt-2">
-                    <li class="py-2 border-b"><i class="fa-solid fa-clock text-indigo-600 mr-2"></i> {{event.name}} - {{event.time}}</li> 
-                </ul>
+            {% empty %}
+                <div class="p-4 text-gray-500 text-center">
+                    No categories found. Add a new category to get started.
+                </div>
             {% endfor %}
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    {% include "footer.html" %}
-</body>
-</html>
+    <!-- Tabs -->
+    <div class="flex space-x-4 mb-4 border-b border-gray-200">
+        <a href="{% url 'dashboard' %}?type=all"
+           class="px-4 py-2 text-sm font-medium {% if current_type == 'all' %}text-blue-600 border-b-2 border-blue-600{% else %}text-gray-500 hover:text-blue-600{% endif %}">
+            All Events
+        </a>
+        <a href="{% url 'dashboard' %}?type=upcoming"
+           class="px-4 py-2 text-sm font-medium {% if current_type == 'upcoming' %}text-blue-600 border-b-2 border-blue-600{% else %}text-gray-500 hover:text-blue-600{% endif %}">
+            Upcoming Events
+        </a>
+        <a href="{% url 'dashboard' %}?type=past"
+           class="px-4 py-2 text-sm font-medium {% if current_type == 'past' %}text-gray-500 border-b-2 border-blue-600{% else %}text-gray-500 hover:text-blue-600{% endif %}">
+            Past Events
+        </a>
+    </div>
+
+    <!-- Events List -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="p-4">
+            <h4 class="text-lg font-semibold text-gray-800 mb-2">
+                {% if current_type == 'upcoming' %}
+                    Upcoming Events
+                {% elif current_type == 'past' %}
+                    Past Events
+                {% else %}
+                    All Events
+                {% endif %}
+            </h4>
+            <p class="text-gray-500 text-sm mb-4">
+                {% if current_type == 'upcoming' %}
+                    Events that are scheduled to take place in the future.
+                {% elif current_type == 'past' %}
+                    Events that have already taken place.
+                {% else %}
+                    All events, past and upcoming.
+                {% endif %}
+            </p>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for event in events %}
+                <div class="p-4 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                            <i class="fas fa-calendar-alt text-blue-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-md font-semibold text-gray-800">{{ event.name }}</h5>
+                            <p class="text-gray-500 text-sm">{{ event.date|date:"M d, Y" }}</p>
+                            <div class="flex items-center mt-1">
+                                {% for i in "x"|rjust:event.participant_count %}
+                                    <i class="fas fa-user text-blue-500 text-sm mr-1"></i>
+                                {% endfor %}
+                                <span class="text-gray-500 text-sm">{{ event.participant_count }} participants</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'update_event' event.id %}" class="px-3 py-1 bg-white text-indigo-500 border border-indigo-500 rounded hover:bg-indigo-100 transition duration-300">
+                            Edit
+                        </a>
+                        <a href="{% url 'event_detail' event.id %}" class="bg-indigo-500 text-white px-3 py-1 rounded-md hover:bg-indigo-600 transition duration-300">
+                            Manage
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-4 text-gray-500 text-center">
+                    No events found.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock content %}

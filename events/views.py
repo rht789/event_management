@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from events.forms import EventForm
+from events.forms import EventForm, CategoryForm
 from events.models import Event, Category
 from django.db.models import Q, Count
 from django.utils.dateparse import parse_date
@@ -40,45 +40,57 @@ def create_event(request):
     if request.method == 'POST':
         event_form = EventForm(request.POST)
         if event_form.is_valid():
-            event = event_form.save(commit=False)
-            event.organizer = request.user  # Set organizer dynamically
-            event.save()
-            event_form.save_m2m()  # Save ManyToMany fields (though participant is excluded)
-            messages.success(request, "Event created Successfully")
-            return redirect('create_event')
-    context = {"event_form": event_form}
+            try:
+                event = event_form.save(commit=False)
+                event.organizer = request.user
+                event.save()
+                event_form.save_m2m()
+                messages.success(request, "Event created Successfully")
+                return redirect('create_event')
+            except Exception as e:
+                messages.error(request, f"Error creating event: {str(e)}")
+        else:
+            messages.error(request, "Please correct the errors in the form.")
+    context = {
+        "event_form": event_form,
+        "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+    }
     return render(request, "create_event.html", context)
 
+@login_required
+@user_passes_test(is_organizer, login_url='no-permission')
 def dashboard(request):
     type = request.GET.get('type', 'all')
-    base_query = Event.objects.select_related('category').prefetch_related('participant')
+    base_query = Event.objects.filter(organizer=request.user).select_related('category').prefetch_related('participant')
     
+    # Aggregated counts for stats
     counts = base_query.aggregate(
         total_participants=Count('participant', distinct=True),
         total_events=Count('id', distinct=True),
         upcoming_events=Count('id', filter=Q(date__gt=timezone.now()), distinct=True),
         past_events=Count('id', filter=Q(date__lt=timezone.now()), distinct=True)
     )
+
+    # Fetch filtered events with participant counts
     if type == 'upcoming':
         events = base_query.filter(date__gt=timezone.now())
     elif type == 'past':
         events = base_query.filter(date__lt=timezone.now())
     else:
         events = base_query
-    categories = (
-        events
-        .values('category__name')
-        .annotate(event_count=Count('id', distinct=True))
-        .order_by('category__name')
-    )
-    event_today = base_query.filter(date=timezone.now())
+    events = events.annotate(participant_count=Count('participant')).order_by('date')
+
+    # Fetch all categories with event counts (use 'event' instead of 'events')
+    categories = Category.objects.annotate(event_count=Count('event', filter=Q(event__organizer=request.user)))
+
     context = {
         "counts": counts,
+        "events": events,
         "categories": categories,
-        "event_today": event_today,
-        "user": request.user
+        "user": request.user,
+        "current_type": type,  # To highlight the active tab
     }
-    return render(request, "dashboard.html", context=context)
+    return render(request, "dashboard.html", context)
 
 def view_events(request):
     type = request.GET.get('type', 'All')
@@ -108,7 +120,14 @@ def view_events(request):
             events = events.filter(date__range=[start_date, end_date])
 
     categories = Event.objects.values_list('category__name', flat=True).distinct()
-    context = {"events": events, "categories": categories, "user": request.user}
+    context = {
+        "events": events,
+        "categories": categories,
+        "user": request.user,
+        "is_participant": request.user.groups.filter(name='Participant').exists() if request.user.is_authenticated else False,
+        "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+        "is_admin": request.user.groups.filter(name='Admin').exists() if request.user.is_authenticated else False,
+    }
     return render(request, "events.html", context)
 
 def event_detail(request, id):
@@ -119,7 +138,13 @@ def event_detail(request, id):
         .annotate(participant_num=Count("participant")),
         id=id
     )
-    context = {'event': event, 'user': request.user}
+    context = {
+        'event': event,
+        'user': request.user,
+        'is_participant': request.user.groups.filter(name='Participant').exists() if request.user.is_authenticated else False,
+        'is_organizer': request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+        'is_admin': request.user.groups.filter(name='Admin').exists() if request.user.is_authenticated else False,
+    }
     return render(request, 'event_detail.html', context)
 
 @login_required
@@ -136,7 +161,10 @@ def update_event(request, id):
             event_form.save()
             messages.success(request, "Event Updated Successfully")
             return redirect('event_detail', id)
-    context = {"event_form": event_form}
+    context = {
+        "event_form": event_form,
+        "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+    }
     return render(request, "create_event.html", context)
 
 @login_required
@@ -202,6 +230,57 @@ def participant_dashboard(request):
     )
     context = {
         "rsvped_events": rsvped_events,
-        "user": user
+        "user": user,
+        "is_participant": request.user.groups.filter(name='Participant').exists() if request.user.is_authenticated else False,
+        "is_organizer": request.user.groups.filter(name='Organizer').exists() if request.user.is_authenticated else False,
+        "is_admin": request.user.groups.filter(name='Admin').exists() if request.user.is_authenticated else False,
     }
     return render(request, "participant_dashboard.html", context)
+
+@login_required
+@user_passes_test(is_organizer, login_url='no-permission')
+def create_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category created successfully.")
+            return redirect('dashboard')
+    else:
+        form = CategoryForm()
+    context = {
+        "form": form,
+        "action": "Create",
+    }
+    return render(request, "category_form.html", context)
+
+@login_required
+@user_passes_test(is_organizer, login_url='no-permission')
+def edit_category(request, id):
+    category = get_object_or_404(Category, id=id)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category updated successfully.")
+            return redirect('dashboard')
+    else:
+        form = CategoryForm(instance=category)
+    context = {
+        "form": form,
+        "action": "Update",
+    }
+    return render(request, "category_form.html", context)
+
+@login_required
+@user_passes_test(is_organizer, login_url='no-permission')
+def delete_category(request, id):
+    category = get_object_or_404(Category, id=id)
+    if Event.objects.filter(category=category).exists():
+        messages.error(request, "Cannot delete category because it is associated with events.")
+        return redirect('dashboard')
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, "Category deleted successfully.")
+        return redirect('dashboard')
+    return redirect('dashboard')

@@ -1,5 +1,5 @@
 from django import forms
-from events.models import Event
+from events.models import Event,Category
 
 class StyledFormMixin:
     """Mixin to apply Tailwind CSS styles to form fields."""
@@ -46,10 +46,17 @@ class EventForm(StyledFormMixin, forms.ModelForm):
     
     class Meta:
         model = Event
-        fields = '__all__'
-        exclude = ['participant']
+        exclude = ['participant','organizer']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),
+            'organizer': forms.HiddenInput(),
         }
 
+class CategoryForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'description', 'color']
+        widgets = {
+            'color': forms.TextInput(attrs={'type': 'color'}),
+        }
