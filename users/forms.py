@@ -22,7 +22,7 @@ class CustomRegisterForm(StyledFormMixin,forms.ModelForm):
         fields = ['username','first_name','last_name','password1','password2','email']
         
     def clean_email(self):
-        email = self.cleaned_data('email')
+        email = self.cleaned_data.get('email')
         
         if not email:
             raise forms.ValidationError("Please enter an email")
@@ -31,7 +31,7 @@ class CustomRegisterForm(StyledFormMixin,forms.ModelForm):
         return email
     
     def clean_password1(self):
-        password1 = self.cleaned_data("password1")
+        password1 = self.cleaned_data.get("password1")
         errors = []
         
         if not password1:
@@ -51,7 +51,7 @@ class CustomRegisterForm(StyledFormMixin,forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
         
         if password1 and password2 and password1!= password2:
             raise forms.ValidationError("Password Do Not Match")

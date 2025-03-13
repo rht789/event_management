@@ -1,19 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Event</title>
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
-</head>
-<body class="bg-gray-100">
-
-    <!-- Navbar -->
-    {% include "nav.html" %}
-
-    <!-- Create Event Form -->
-    <section class="p-8 max-w-3xl mx-auto">
+{% extends "base.html" %}
+<title>{% block title %}Create Event{% endblock title %}</title>
+{% block content %}
+<section class="p-8 max-w-3xl mx-auto">
         <h3 class="text-2xl font-bold">Create New Event</h3>
 
         <!-- Success Message -->
@@ -73,9 +61,6 @@
             </form>
         </div>
     </section>
+{% endblock content %}
+    
 
-    <!-- Footer -->
-    {% include "footer.html" %}
-
-</body>
-</html>
