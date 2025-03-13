@@ -6,7 +6,6 @@ from django.db.models import Q, Count
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
-from users.views import is_admin
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -15,6 +14,19 @@ def is_organizer(user):
 
 def is_participant(user):
     return user.groups.filter(name='Participant').exists()
+
+def is_admin(user):
+    return user.groups.filter(name='Admin').exists()
+
+@login_required
+def dashboard(request):
+    if is_organizer(request.user):
+        return redirect('organizer_dashboard')
+    elif is_participant(request.user):
+        return redirect('participant_dashboard')
+    elif is_admin(request.user):
+        return redirect('admin-dashboard')
+    return redirect('no-permission')
 
 def home(request):
     upcoming_events = (
@@ -59,7 +71,7 @@ def create_event(request):
 
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
-def dashboard(request):
+def organizer_dashboard(request):  # Renamed from 'dashboard'
     type = request.GET.get('type', 'all')
     base_query = Event.objects.filter(organizer=request.user).select_related('category').prefetch_related('participant')
     
@@ -80,7 +92,7 @@ def dashboard(request):
         events = base_query
     events = events.annotate(participant_count=Count('participant')).order_by('date')
 
-    # Fetch all categories with event counts (use 'event' instead of 'events')
+    # Fetch all categories with event counts (use 'event' instead of 'events' as per the previous fix)
     categories = Category.objects.annotate(event_count=Count('event', filter=Q(event__organizer=request.user)))
 
     context = {
@@ -223,7 +235,7 @@ def participant_dashboard(request):
     user = request.user
     rsvped_events = (
         Event.objects
-        .filter(rsvp_events=user)
+        .filter(participant=user)
         .select_related('category')
         .annotate(participant_num=Count("participant"))
         .order_by('date')
@@ -238,6 +250,19 @@ def participant_dashboard(request):
     return render(request, "participant_dashboard.html", context)
 
 @login_required
+@user_passes_test(is_participant, login_url='no-permission')
+def cancel_rsvp(request, id):
+    event = get_object_or_404(Event, id=id)
+    if request.method == 'POST':
+        if request.user in event.participant.all():
+            event.participant.remove(request.user)
+            messages.success(request, f"You have successfully canceled your registration for {event.name}.")
+        else:
+            messages.error(request, "You are not registered for this event.")
+        return redirect('participant_dashboard')
+    return redirect('participant_dashboard')
+
+@login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def create_category(request):
     if request.method == 'POST':
@@ -245,7 +270,7 @@ def create_category(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Category created successfully.")
-            return redirect('dashboard')
+            return redirect('organizer_dashboard')  # Updated redirect
     else:
         form = CategoryForm()
     context = {
@@ -263,7 +288,7 @@ def edit_category(request, id):
         if form.is_valid():
             form.save()
             messages.success(request, "Category updated successfully.")
-            return redirect('dashboard')
+            return redirect('organizer_dashboard')  # Updated redirect
     else:
         form = CategoryForm(instance=category)
     context = {
@@ -278,9 +303,9 @@ def delete_category(request, id):
     category = get_object_or_404(Category, id=id)
     if Event.objects.filter(category=category).exists():
         messages.error(request, "Cannot delete category because it is associated with events.")
-        return redirect('dashboard')
+        return redirect('organizer_dashboard')  # Updated redirect
     if request.method == 'POST':
         category.delete()
         messages.success(request, "Category deleted successfully.")
-        return redirect('dashboard')
-    return redirect('dashboard')
+        return redirect('organizer_dashboard')  # Updated redirect
+    return redirect('organizer_dashboard')  # Updated redirect

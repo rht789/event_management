@@ -8,7 +8,7 @@
         <a href="{% url 'create_event' %}" class="font-semibold text-indigo-400 hover:text-indigo-700">Create Event</a>
             <form method="post" action="{% url 'sign-out' %}">
                 {% csrf_token %}
-                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-indigo-400 hover:text-indigo-700">Logout</button>
+                <button type="submit" class="block w-full text-left border border-indigo-500 px-4 py-2 text-sm text-indigo-400 hover:text-indigo-700 hover:bg-indigo-200">Logout</button>
             </form>
     </div>
 </nav>

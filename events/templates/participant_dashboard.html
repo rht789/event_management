@@ -2,8 +2,9 @@
 
 {% block content %}
     <div class="container mx-auto p-8">
-        <h2 class="text-3xl font-bold text-indigo-700 mb-6">My RSVP'd Events</h2>
-        
+        <h2 class="text-3xl font-bold text-indigo-700 mb-6">My Registered Events</h2>
+        <p class="text-gray-600 mb-6">Events you have registered to attend.</p>
+
         {% if messages %}
             <div class="container mx-auto mt-6">
                 {% for message in messages %}
@@ -16,35 +17,39 @@
         {% endif %}
 
         {% if rsvped_events %}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="space-y-4">
                 {% for event in rsvped_events %}
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h4 class="font-bold text-indigo-700">{{ event.name }}</h4>
-                        <p class="">
-                            <i class="fas fa-calendar-alt text-indigo-600"></i> {{ event.date }}
-                        </p>
-                        <p class="">
-                            <i class="fas fa-map-marker-alt text-indigo-600"></i> {{ event.location }}
-                        </p>
-                        <p class="text-gray-500 text-sm mb-3">
-                            <i class="fa-solid fa-users mr-1 text-indigo-600"></i>
-                            {{ event.participant_num }}
-                        </p>
-                        <span class="text-indigo-500 text-sm bg-gray-200 px-2 py-1 rounded-md">
-                            {{ event.category.name }}
-                        </span>
-                        <br>
-                        <a
-                            href="{% url 'event_detail' event.id %}"
-                            class="inline-block mt-2 bg-indigo-600 text-white px-3 py-2 text-sm rounded-md hover:bg-indigo-700 transition duration-300"
-                        >
-                            View Details
-                        </a>
+                    <div class="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-indigo-100 p-3 rounded-lg">
+                                <i class="fas fa-calendar-alt text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">{{ event.name }}</h4>
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-calendar-alt text-indigo-600 mr-1"></i> {{ event.date|date:"M d, Y" }} {% if event.time %}&#64; {{ event.time|time:"h:i A" }}{% endif %}
+                                </p>
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-map-marker-alt text-indigo-600 mr-1"></i> {{ event.location }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'event_detail' event.id %}" class="bg-indigo-600 text-white px-4 py-2 text-sm rounded-md hover:bg-indigo-700 transition duration-300">
+                                View Details
+                            </a>
+                            <form action="{% url 'cancel_rsvp' event.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel your registration for {{ event.name }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-gray-200 text-gray-700 px-4 py-2 text-sm rounded-md hover:bg-gray-300 transition duration-300">
+                                    Cancel Registration
+                                </a>
+                            </form>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-gray-600">You haven't RSVP'd to any events yet.</p>
+            <p class="text-gray-600">You haven't registered for any events yet.</p>
             <a href="{% url 'view_events' %}" class="text-indigo-600 hover:underline">Browse Events</a>
         {% endif %}
     </div>
