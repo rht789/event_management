@@ -46,7 +46,7 @@ def home(request):
     return render(request, "homepage.html", context)
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.add_event", login_url='no-permission')
 def create_event(request):
     event_form = EventForm()
     if request.method == 'POST':
@@ -157,7 +157,7 @@ def event_detail(request, id):
     return render(request, 'event_detail.html', context)
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.change_event", login_url='no-permission')
 def update_event(request, id):
     try:
         event = Event.objects.get(id=id)
@@ -182,7 +182,7 @@ def update_event(request, id):
     return render(request, "create_event.html", context)
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.delete_event", login_url='no-permission')
 def delete_event(request, id):
     try:
         event = Event.objects.get(id=id)
@@ -278,7 +278,7 @@ def cancel_rsvp(request, id):
     return redirect('participant_dashboard')
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.add_category", login_url='no-permission')
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -295,7 +295,7 @@ def create_category(request):
     return render(request, "category_form.html", context)
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.change_category", login_url='no-permission')
 def edit_category(request, id):
     try:
         category = Category.objects.get(id=id)
@@ -318,7 +318,7 @@ def edit_category(request, id):
     return render(request, "category_form.html", context)
 
 @login_required
-@user_passes_test(is_organizer, login_url='no-permission')
+@permission_required("events.delete_category", login_url='no-permission')
 def delete_category(request, id):
     try:
         category = Category.objects.get(id=id)
