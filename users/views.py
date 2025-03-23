@@ -1,13 +1,15 @@
 from django.utils import timezone
 from django.shortcuts import render, redirect, HttpResponse
 from users.forms import LoginForm, CustomRegisterForm, CreateGroupForm
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.db.models import Count
 from events.models import Event
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.tokens import default_token_generator
+
+User = get_user_model()
 
 # Create your views here.
 

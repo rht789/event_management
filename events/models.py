@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 class Category(models.Model):
     name = models.CharField(max_length=30)
@@ -17,9 +17,9 @@ class Event(models.Model):
     location = models.CharField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     assets = models.ImageField(upload_to='events_asset', blank=True, null=True, default="events_asset/default.jpg")
-    participant = models.ManyToManyField(User, related_name='rsvp_events', blank=True)
+    participant = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='rsvp_events', blank=True)
     organizer = models.ForeignKey(
-        User, 
+        settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
         related_name='events_organized'
     )
