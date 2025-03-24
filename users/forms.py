@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User,Permission,Group
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.models import Permission,Group
 from events.forms import StyledFormMixin
 from django.contrib.auth import get_user_model
 
@@ -22,7 +22,7 @@ class CustomRegisterForm(StyledFormMixin,forms.ModelForm):
     
     class Meta:
         model = User
-        fields = ['username','first_name','last_name','password1','password2','email']
+        fields = ['username','email','first_name','last_name','password1','password2','phone','profile_image']
         
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -79,3 +79,25 @@ class CreateGroupForm(StyledFormMixin, forms.ModelForm):
             'name': 'Role Name',
             'permissions': 'Role Permissions'
         }
+        
+class EditProfileForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'bio', 'profile_image','phone','location']
+    widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['profile_image'].widget.attrs.update({'class': 'hidden'})
+        self.fields['phone'].widget.attrs.update({'placeholder': 'e.g., 1234567890'})
+        self.fields['location'].widget.attrs.update({'placeholder': 'e.g., New York, USA'})
+        
+class ChangePasswordForm(StyledFormMixin,PasswordChangeForm):
+    pass
+
+class CustomPasswordResetForm(StyledFormMixin, PasswordResetForm):
+    pass
+
+class CustomPasswordResetConfirmForm(StyledFormMixin, SetPasswordForm):
+    pass

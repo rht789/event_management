@@ -40,10 +40,14 @@
             Sign In
         </button>
 
-        <p class="text-sm text-center mt-4">Don't have an account yet?
+        <p class="text-sm text-center mt-4">
+            <a href="{% url 'password_reset' %}" class="text-indigo-600 hover:text-indigo-700">Forgot Password?</a>
+        </p>
+
+        <p class="text-sm text-center mt-2">Don't have an account yet?
             <a href="{% url 'sign-up' %}" class="text-indigo-600 hover:text-indigo-700">Sign Up</a>
         </p>
     </form>
-    </div>  
+  </div>  
 </div>
 {% endblock content %}

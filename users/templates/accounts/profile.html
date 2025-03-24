@@ -1,0 +1,112 @@
+{% extends "accounts/sidebar.html" %}
+{% load custom_filters %}
+{% block profile_content %}
+<div class="mx-auto bg-gray-50 p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">Profile Information</h1>
+    <p class="text-sm text-gray-600 mb-6">Your personal information and event app details</p>
+
+    <!-- Messages Section -->
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Profile Header -->
+    <div class="flex items-center mb-8">
+        <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-2xl">
+            {% if profile_image and profile_image.url != '/media/profile_images/default.png' %}
+                <img src="{{ profile_image.url }}" alt="Profile Picture" class="w-full h-full rounded-full object-cover">
+            {% else %}
+                <span>{{ name|slice:":1" }}{{ name|slice:"1:2" }}</span>
+            {% endif %}
+        </div>
+        <div class="ml-4">
+            <h2 class="text-xl font-semibold text-gray-800">{{name}}</h2>
+            <p class="text-sm text-gray-600">@{{username}}</p>
+            <span class="inline-block text-xs px-2 py-1 rounded-full mt-1 {% if role == 'No role' %}bg-gray-200 text-gray-800{% else %}bg-indigo-100 text-indigo-800{% endif %}">{{ role }}</span>
+        </div>
+    </div>
+
+    <!-- Account Information -->
+    <div class="border-t border-gray-200 pt-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Role</p>
+                <p class="text-gray-800">{{ role }}</p>
+                <p class="text-xs text-gray-500">Role changes can only be made by administrators</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Last Login</p>
+                <p class="text-gray-800">{{last_login|humanized_date}}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Member Since</p>
+                <p class="text-gray-800">{{member_since|humanized_date}}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Events</p>
+                <p class="text-gray-800">12 Attended • 5 Organized</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="border-t border-gray-200 pt-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">About</h3>
+        <p class="text-gray-600">{{bio}}</p>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="border-t border-gray-200 pt-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-600 flex items-center">
+                    <i class="fas fa-envelope w-5 h-5 mr-2 text-indigo-500"></i>
+                    {{email}}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 flex items-center">
+                    <i class="fas fa-phone w-5 h-5 mr-2 text-indigo-500"></i>
+                    +880 {{phone}}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 flex items-center">
+                    <i class="fas fa-map-marker-alt w-5 h-5 mr-2 text-indigo-500"></i>
+                    {{location}}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 flex items-center">
+                    <i class="fas fa-globe w-5 h-5 mr-2 text-indigo-500"></i>
+                    {{username}}.com
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Profiles -->
+    <div class="border-t border-gray-200 pt-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Social Profiles</h3>
+        <div class="flex space-x-4">
+            <a href="#" class="text-indigo-500 hover:text-indigo-700">
+                <i class="fab fa-twitter w-6 h-6"></i>
+            </a>
+            <a href="#" class="text-indigo-500 hover:text-indigo-700">
+                <i class="fab fa-github w-6 h-6"></i>
+            </a>
+            <a href="#" class="text-indigo-500 hover:text-indigo-700">
+                <i class="fab fa-linkedin-in w-6 h-6"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

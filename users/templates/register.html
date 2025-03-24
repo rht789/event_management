@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="bg-gray-50 flex items-center justify-center min-h-screen">
-    <div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-lg">
+    <div class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-lg my-4">
             <h2 class="text-2xl font-bold text-indigo-900 text-center mb-6">Create an Account</h2>
 
             {% if messages %}
@@ -20,7 +20,7 @@
                 </div>
             {% endif %}
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="mb-4">
