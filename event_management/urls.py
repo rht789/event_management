@@ -3,6 +3,7 @@ from django.urls import include, path
 from debug_toolbar.toolbar import debug_toolbar_urls
 from core.views import no_permission
 from events.views import home
+from users.views import ProfileView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,6 +11,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name='home'),
     path("no_permission", no_permission, name='no-permission'),
+    path('accounts/profile/', ProfileView.as_view(), name='profile'),
     path("events/", include("events.urls")),
     path("users/", include("users.urls")),
 ] + debug_toolbar_urls()
