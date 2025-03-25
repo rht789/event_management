@@ -15,7 +15,7 @@ urlpatterns = [
     path('admin/users/', user_management, name='user-management'),
     path('admin/users/ban/<int:user_id>/', ban_user, name='ban-user'),
     path('admin/users/delete/<int:user_id>/', delete_user, name='delete-user'),
-    path('profile/', ProfileView.as_view(), name='profile'),
+    path('accounts/profile/', ProfileView.as_view(), name='profile'),
     path('profile/edit-profile/', EditProfileView.as_view(), name='edit-profile'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('password-change/done/', PasswordChangeDoneView.as_view(template_name='accounts/password_change_done.html'), name='password_change_done'),
