@@ -72,7 +72,7 @@ class SignUpView(AccessMixin, CreateView):
 
 class SignInView(LoginView):
     form_class=LoginForm
-    template_name='registration/signin.html'
+    template_name='signin.html'
 
     def get_success_url(self):
         next_url = self.request.GET.get('next')
