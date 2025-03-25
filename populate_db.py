@@ -27,7 +27,7 @@ def populate_db():
     fake = Faker()
 
     # Check for existing groups; create if they don't exist
-    group_names = ["Admin", "Organizer", "Participant"]
+    group_names = ["Organizer", "Participant"]
     groups = {}
     for name in group_names:
         group, created = Group.objects.get_or_create(name=name)
@@ -55,7 +55,7 @@ def populate_db():
     print(f"Found {len(users)} existing users.")
 
     # Create additional users if needed (to ensure at least 30 users for variety)
-    target_user_count = 30
+    target_user_count = 10
     if len(users) < target_user_count:
         for _ in range(target_user_count - len(users)):
             username = fake.user_name()
@@ -63,11 +63,11 @@ def populate_db():
             while User.objects.filter(username=username).exists():
                 username = fake.user_name()
             first_three = username[:3] if len(username) >= 3 else username
-            email = f"{first_three}9988@gomail.com"
+            email = f"{first_three}@gmail.com"
             # Ensure email is unique
             while User.objects.filter(email=email).exists():
                 first_three = fake.user_name()[:3]
-                email = f"{first_three}9988@gomail.com"
+                email = f"{first_three}@gmail.com"
             user = User.objects.create_user(
                 username=username,
                 first_name=fake.first_name(),
