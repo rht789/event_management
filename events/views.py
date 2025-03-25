@@ -7,7 +7,10 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from django.core.mail import send_mail
+from django.views.generic import View, ListView,CreateView,DetailView,DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin,UserPassesTestMixin
 from django.conf import settings
+from django.urls import reverse_lazy
 
 def is_organizer(user):
     return user.groups.filter(name='Organizer').exists()
@@ -45,6 +48,28 @@ def home(request):
     }
     return render(request, "homepage.html", context)
 
+class HomeView(ListView):
+    model=Event
+    context_object_name="upcoming_events"
+    template_name="homepage.html"
+    
+    def get_queryset(self):
+        queryset=(
+            Event.objects.prefetch_related('participant')
+            .select_related('category')
+            .filter(date__gte=timezone.now())
+            .order_by('date')
+            .annotate(participant_num=Count("participant"))
+        ).order_by('?')[:6]
+        return queryset
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['user']=self.request.user
+        context['is_participant']=self.request.user.groups.filter(name='Participant').exists() if self.request.user.is_authenticated else False
+        context['is_organizer']=self.request.user.groups.filter(name='Organizer').exists() if self.request.user.is_authenticated else False
+        context['is_admin']=self.request.user.groups.filter(name='Admin').exists() if self.request.user.is_authenticated else False
+    
+    
 @login_required
 @permission_required("events.add_event", login_url='no-permission')
 def create_event(request):
@@ -69,6 +94,41 @@ def create_event(request):
     }
     return render(request, "create_event.html", context)
 
+class CreateEventView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
+    model=Event
+    form_class=EventForm
+    template_name="create_event.html"
+    success_url=reverse_lazy('create_event')
+    login_url='sign-in'
+    permission_required='events.add_event'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.method == 'POST':
+            kwargs['files'] = self.request.FILES
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            event = form.save(commit=False)
+            event.organizer = self.request.user
+            event.save()
+            form.save_m2m()
+            messages.success(self.request, "Event created Successfully")
+            return super().form_valid(form)
+        
+        except Exception as e:
+            messages.error(self.request, f"Error creating event: {str(e)}")
+            return self.form_invalid(form)
+            
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors in the form.")
+        return super().form_invalid(form)
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['is_organizer']=self.request.user.groups.filter(name='Organizer').exists() if self.request.user.is_authenticated else False
+        context['event_form']=context['form']
+    
 @login_required
 @user_passes_test(is_organizer, login_url='no-permission')
 def organizer_dashboard(request):
@@ -134,6 +194,48 @@ def view_events(request):
     }
     return render(request, "events.html", context)
 
+class EventsListView(ListView):
+    template_name='events.html'
+    model=Event
+    context_object_name='events'
+    
+    def get_queryset(self):
+        type = self.request.GET.get('type', 'All')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+
+        events = (
+            Event.objects.prefetch_related('participant')
+            .select_related('category')
+            .annotate(participant_num=Count("participant"))
+        )
+        search = self.request.GET.get('search', '')
+        if search:
+            events = events.filter(
+                Q(name__icontains=search) |
+                Q(location__icontains=search)
+            )
+
+        if type != 'All':
+            events = events.filter(category__name=type)
+
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+            if start_date and end_date:
+                events = events.filter(date__range=[start_date, end_date])
+        return events
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] =Event.objects.values_list('category__name', flat=True).distinct()
+        context['user']=self.request.user
+        context['is_participant']= self.request.user.groups.filter(name='Participant').exists() if self.request.user.is_authenticated else False
+        context['is_organizer']= self.request.user.groups.filter(name='Organizer').exists() if self.request.user.is_authenticated else False
+        context['is_admin']= self.request.user.groups.filter(name='Admin').exists() if self.request.user.is_authenticated else False
+        return context
+    
+    
 def event_detail(request, id):
     try:
         event = (
@@ -155,6 +257,38 @@ def event_detail(request, id):
         'is_admin': request.user.groups.filter(name='Admin').exists() if request.user.is_authenticated else False,
     }
     return render(request, 'event_detail.html', context)
+
+
+class EventDetailView(DetailView):
+    model = Event
+    template_name = 'event_detail.html'
+    context_object_name = 'event'
+    pk_url_kwarg = 'id'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except Event.DoesNotExist:
+            messages.error(request, "Event not found")
+            return redirect('view_events')
+
+    def get_queryset(self):
+        queryset= (
+            super().get_queryset()
+            .prefetch_related('participant')
+            .select_related('category')
+            .annotate(participant_num=Count("participant"))
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['is_participant'] = self.request.user.groups.filter(name='Participant').exists() if self.request.user.is_authenticated else False
+        context['is_organizer'] = self.request.user.groups.filter(name='Organizer').exists() if self.request.user.is_authenticated else False
+        context['is_admin'] = self.request.user.groups.filter(name='Admin').exists() if self.request.user.is_authenticated else False
+        return context
+
 
 @login_required
 @permission_required("events.change_event", login_url='no-permission')
@@ -199,6 +333,39 @@ def delete_event(request, id):
         return redirect('view_events')
     return render(request, "event_detail.html")
 
+class EventDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Event
+    template_name = "event_detail.html"
+    permission_required = "events.delete_event"
+    login_url = 'no-permission'
+    success_url = reverse_lazy('view_events')
+    pk_url_kwarg = 'id'
+    
+    def get_object(self, queryset=None):
+        try:
+            obj = Event.objects.get(id=self.kwargs['id'])
+            if self.request.user != obj.organizer:
+                return redirect('no-permission')
+            return obj
+        except Event.DoesNotExist:
+            messages.error(self.request, "Event not found")
+            return redirect('organizer_dashboard')
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not isinstance(self.object, Event):
+            return self.object
+        success_url = self.get_success_url()
+        self.object.delete()
+        messages.success(request, "Event Deleted Successfully")
+        return redirect(success_url)
+    
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not isinstance(obj, Event):
+            return obj
+        return super().dispatch(request, *args, **kwargs)
+
 @login_required
 @user_passes_test(is_participant, login_url='no-permission')
 def rsvp_event(request, id):
@@ -238,6 +405,57 @@ def rsvp_event(request, id):
             messages.info(request, f"You have already RSVP'd to {event.name}.")
         return redirect('event_detail', id=id)
     return redirect('event_detail', id=id)
+
+class RSVPEventView(LoginRequiredMixin,UserPassesTestMixin,View):
+    login_url='no-permission'
+    
+    def test_func(self):
+        return is_participant(self.request.user)
+    
+    def get_event(self,pk):
+        try:
+            return Event.objects.get(id=pk)
+        except Event.DoesNotExist:
+            messages.error(self.request, "Event not found")
+            return None
+    def get(self,request,*arg,**kwargs):
+        return redirect('event_detail', id=self.kwargs['pk'])
+    def post(self, request, *args, **kwargs):
+        event = self.get_event(self.kwargs['pk'])
+        
+        if event is None:
+            return redirect('event_detail', id=self.kwargs['pk'])
+            
+        if request.user not in event.participant.all():
+            event.participant.add(request.user)
+            messages.success(request, f"You have successfully RSVP'd to {event.name}!")
+            
+            subject = f"RSVP Confirmation for {event.name}"
+            message = f"""
+            Hello {request.user.first_name},
+
+            Thank you for RSVPing to {event.name}!
+            Event Details:
+            - Date: {event.date}
+            - Location: {event.location}
+            - Category: {event.category.name}
+
+            We look forward to seeing you there!
+
+            Best regards,
+            The EventHub Team
+            """
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=False,
+            )
+        else:
+            messages.info(request, f"You have already RSVP'd to {event.name}.")
+        
+        return redirect('event_detail', id=event.id)
 
 @login_required
 @user_passes_test(is_participant, login_url='no-permission')
